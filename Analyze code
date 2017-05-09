@@ -1,0 +1,63 @@
+data("Titanic")# Load data set
+View(Titanic)
+is.data.frame(Titanic)
+Titanic <- data.frame(Titanic, stringsAsFactors = FALSE)
+View(Titanic)
+
+#creat variable children that contains information rows about children
+row.numbers <- which(Titanic$Age == "Child") # get the rows with children
+children <- Titanic[row.numbers,]
+
+# create variable that sums up number of children on board
+children.num <- sum(children$Freq) # sum up the number of children in each row
+print(children.num)
+
+# output the row with largest absolute number of losses
+fail.to.survive <- Titanic$Survived == "No"
+Freq.losses <- Titanic$Freq[fail.to.survive] # frequenceies that fail to survive
+largest.loss <- max(Freq.losses)
+Titanic[which(Titanic$Freq == largest.loss),]# identify the row information from losses number
+
+# define function that takes in ticket classes and return men and women survival rates
+SurvivalRate <- function(level) {
+  #people in the class
+  # number of men in this class
+  class.level.men <- Titanic[Titanic$Class == level & Titanic$Sex == "Male"& Titanic$Age == "Adult",]
+  class.level.men <- sum(class.level.men["Freq"])
+  
+  #number of women in class level
+  class.level.women <- Titanic[Titanic$Class == level & Titanic$Sex == "Female"& Titanic$Age == "Adult",]
+  class.level.women <- sum(class.level.women["Freq"])
+  
+  #number of children in class level
+  class.level.children <- Titanic[Titanic$Class == level & Titanic$Age == "Child",]
+  class.level.children <- sum(class.level.children["Freq"])
+  
+  
+  #class level survival
+  #number of men survived
+  men.survived.in.class.level <- Titanic[Titanic$Survived == "Yes" & Titanic$Class == level & Titanic$Sex == "Male"& Titanic$Age == "Adult", ]
+  num.men.survived.in.class.level <- men.survived.in.class.level[1, "Freq"]
+  
+  #number of women survived
+  women.survived.in.class.level <- Titanic[Titanic$Survived == "Yes" & Titanic$Class == level & Titanic$Sex == "Female" & Titanic$Age == "Adult", ]
+  num.women.survived.in.class.level <- women.survived.in.class.level[1, "Freq"]
+  
+  #number of children survived
+  children.survived.in.class.level <- Titanic[Titanic$Survived == "Yes" & Titanic$Class == level & Titanic$Age == "Child", ]
+  num.children.survived.in.class.level <- sum(children.survived.in.class.level[1, "Freq"], children.survived.in.class.level[2, "Freq"])
+
+  #class level survial rates:
+  men.survival.rate.level <- round(num.men.survived.in.class.level / class.level.men * 100)
+  women.and.children.survival.rate.level <- round((num.women.survived.in.class.level + num.children.survived.in.class.level) / (class.level.women + class.level.children) * 100)
+
+  #construct a conclusion:
+  conclusion <- paste("Of ", level, " class, ", women.and.children.survival.rate.level, "% of women and children suvived and ", men.survival.rate.level, "% of men survived.", sep = "")
+  
+  return(conclusion)
+}
+
+# print the survival rate of 1st, 2nd, 3rd, classes
+SurvivalRate("1st")
+SurvivalRate("2nd")
+SurvivalRate("3rd")
